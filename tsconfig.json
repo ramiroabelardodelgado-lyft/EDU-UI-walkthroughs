@@ -1,0 +1,49 @@
+// tsconfig.json
+{
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "target": "es2017",
+    "lib": [
+      "es2017",
+      "dom"
+    ],
+/*     "outDir": "./dist",
+ */
+    "typeRoots": [
+      "./node_modules/@types",
+      "./node_modules/@figma"
+    ],
+  },  
+  
+
+}
+
+/*
+
+OLD TSCONFIG NOT WORKING
+ {
+  "compilerOptions": {
+    "target": "es6",
+    "skipLibCheck": true,
+
+    "lib": ["es2016","DOM"],
+    "strict": false,
+    //"moduleDetection": "force",
+    
+    "typeRoots": [
+      "./node_modules/@types",
+      "./node_modules/@figma"
+    ],
+    //"module": "CommonJS",
+
+    //"outDir": "./dist",
+    "jsx": "react",
+    "allowJs": true,
+    "moduleResolution": "node"
+  },
+  "exclude": [
+    "node_modules"
+  ],
+} 
+  */
+
