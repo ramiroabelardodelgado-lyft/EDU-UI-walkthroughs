@@ -1,40 +1,48 @@
-Below are the steps to get your plugin running. You can also find instructions at:
+README
 
-  https://www.figma.com/plugin-docs/plugin-quickstart-guide/
+This Figma plugin uses EDU-UI components to quickly mockup ui walkthroughs, this plugin exports
+a zip file containing pngs and a json file.
+The pngs are from selected frames or frames under a selected Figma "Section" using a 1290x2796 image resolution settings setting. 
+The json contains each of the EDU-UI Components position, size and name, as well as the original Frame size.
+The zip file should be unzipped in order to be read by the AE_Walkthroughs.jsx after effects script.
 
-This plugin template uses Typescript and NPM, two standard tools in creating JavaScript applications.
+Changelog
 
-First, download Node.js which comes with NPM. This will allow you to install TypeScript and other
-libraries. You can find the download link here:
+### [V.17] - YYYY-MM-DD
 
-  https://nodejs.org/en/download/
+#### Added
 
-Next, install TypeScript using the command:
+* Support for different original frame sizes (393px or 1290px width for Figma files or simulator).
 
-  npm install -g typescript
+### [V.16] - YYYY-MM-DD
 
-Finally, in the directory of your plugin, get the latest type definitions for the plugin API by running:
+#### Added
 
-  npm install --save-dev @figma/plugin-typings
+* Changelog with H and V scrolls
+* EDU Figma to AE UI Walkthrough
 
-If you are familiar with JavaScript, TypeScript will look very familiar. In fact, valid JavaScript code
-is already valid Typescript code.
+### [V.15] - YYYY-MM-DD
 
-TypeScript adds type annotations to variables. This allows code editors such as Visual Studio Code
-to provide information about the Figma API while you are writing code, as well as help catch bugs
-you previously didn't notice.
+#### Added
 
-For more information, visit https://www.typescriptlang.org/
+* EDU NLA Figma to AE UI Walkthrough (After Effects Property script)
 
-Using TypeScript requires a compiler to convert TypeScript (code.ts) into JavaScript (code.js)
-for the browser to run.
+### [V.13] - YYYY-MM-DD
 
-We recommend writing TypeScript code using Visual Studio code:
+#### Added
 
-1. Download Visual Studio Code if you haven't already: https://code.visualstudio.com/.
-2. Open this directory in Visual Studio Code.
-3. Compile TypeScript to JavaScript: Run the "Terminal > Run Build Task..." menu item,
-    then select "npm: watch". You will have to do this again every time
-    you reopen Visual Studio Code.
+* ZIP file support (Figma plugin)
 
-That's it! Visual Studio Code will regenerate the JavaScript file every time you save.
+### [V.01] - YYYY-MM-DD
+
+#### Added
+
+* EDU NLA Mod of Duik's NLA
+
+## To-do List
+
+* Fix NLA animation properties scripted expression
+* Change EDU-Highlight animation implementing NLA building blocks
+* Add support for stacked highlights or scrolls
+* Embed NLA and JSX to the zip file
+* Make it template-less (remove the need for the extra "template" file)
