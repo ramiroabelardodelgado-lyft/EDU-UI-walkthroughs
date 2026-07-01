@@ -1,62 +1,333 @@
 <html>
 <style>
-body {
-  font-family: "SF Pro Text", Sans-Serif;
-  overflow: hidden
+/* ── Lyft Product Language — exact tokens from Core UI Components ── */
+:root {
+  /* Surfaces */
+  --c-interactive:   #820076;   /* CORE_UI_COLORS.surfaceInteractive  */
+  --c-interactive-h: #66035b;   /* LPL Pressed Surface Interactive    */
+  --c-interactive-d: #c490bf;   /* disabled ~50% lightened            */
+  --c-negative:      #c81534;   /* CORE_UI_COLORS.surfaceNegative     */
+  --c-negative-h:    #98122c;   /* LPL Pressed Surface Negative       */
+  /* Text */
+  --c-text:          #1d0c17;   /* CORE_UI_COLORS.textPrimary         */
+  --c-text-inv:      #ffffff;   /* CORE_UI_COLORS.textPrimaryInverse  */
+  --c-muted:         #7a6470;   /* warm muted, derived                */
+  --c-ok:            #00823c;
+  /* Surfaces */
+  --c-bg:            #f0ede9;   /* warm off-white page bg             */
+  --c-surface:       #ffffff;
+  --c-sec:           #e5e1db;   /* secondary btn bg (surfaceSecondary resolved) */
+  --c-sec-h:         #dad5ce;   /* pressed secondary                  */
+  --c-border:        #dbd6d1;
+  /* Shape */
+  --r-pill:  100px;
+  --r-sm:    8px;
 }
-h1 {
-  font-size: medium;
-  max-height: fit-content;
-  margin-bottom: auto;
-}
-span {
-  font-size: smaller;
-  position: absolute;
-  right: 10%;
-  bottom: 10%;
-}
-edu {
-  font-size: small;
-  left: 10%;
-}
-edu d{
-  font-size: 90%;
 
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: "Rebel Sans Text VF", "SF Pro Text", -apple-system, sans-serif;
+  background: var(--c-bg);
+  color: var(--c-text);
+  overflow-y: auto;
+  overflow-x: hidden;
+  font-size: 11px;
 }
-svg{
-  position: absolute;
-  opacity: 80%;
-  width: 10%;
+
+/* ── Header ── */
+#header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px 9px;
+  background: var(--c-text);   /* #1d0c17 — near-black warm dark */
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+#header svg { width: 15px; flex-shrink: 0; }
+#header h1 {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #fff;
+  flex: 1;
+}
+#version { font-size: 9px; color: rgba(255,255,255,0.38); }
+
+/* ── Sections ── */
+.section {
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--c-border);
+  padding: 8px 0 6px;
+}
+.section-label {
+  font-size: 8.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--c-interactive);
+  padding: 0 12px 5px;
+}
+
+/* ── Frame rows ── */
+.frame-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 12px;
+  font-size: 11px;
+}
+.frame-row.ok   .dot { color: var(--c-ok); }
+.frame-row.warn .dot { color: var(--c-negative); }
+.dot { font-size: 11px; flex-shrink: 0; }
+.frame-name { font-weight: 600; min-width: 22px; }
+.frame-dims { color: var(--c-muted); flex: 1; font-variant-numeric: tabular-nums; }
+.frame-row.warn .frame-dims { color: var(--c-negative); }
+
+.scale-btn {
+  font-size: 9.5px;
+  font-weight: 600;
+  font-family: inherit;
+  padding: 2px 9px;
+  border-radius: var(--r-pill);
+  border: 1.5px solid var(--c-negative);
+  color: var(--c-negative);
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.scale-btn:hover { background: rgba(200,21,52,0.07); }
+.scale-btn:active { background: rgba(152,18,44,0.12); }
+
+/* ── Hint & error summary ── */
+#hint {
+  font-size: 9.5px;
+  color: var(--c-muted);
+  padding: 2px 12px 4px;
+  display: none;
+}
+#error-summary {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--c-negative);
+  padding: 2px 12px 2px;
+  display: none;
+}
+
+/* ── Scale-all button — secondary style ── */
+#btn-scale-all {
+  width: 100%;
+  padding: 7px 0;
+  border-radius: var(--r-pill);
+  border: none;
+  background: var(--c-sec);
+  font-size: 10.5px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--c-text);
+  cursor: pointer;
+}
+#btn-scale-all:hover  { background: var(--c-sec-h); }
+#btn-scale-all:active { background: #cec8c1; }
+
+/* ── Selection info ── */
+#selection-info {
+  font-size: 10.5px;
+  color: var(--c-text);
+  padding: 4px 12px 2px;
+  min-height: 20px;
+  font-weight: 500;
+}
+#selection-info.empty { color: var(--c-muted); font-style: italic; font-weight: 400; }
+#selection-info.edu   { color: var(--c-negative); }
+
+/* ── Padding row ── */
+#padding-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px 6px;
+  font-size: 10.5px;
+  color: var(--c-muted);
+}
+#padding-input {
+  width: 44px;
+  padding: 3px 6px;
+  border: 1.5px solid var(--c-border);
+  border-radius: var(--r-sm);
+  font-size: 11px;
+  font-family: inherit;
+  text-align: center;
+  color: var(--c-text);
+  background: var(--c-bg);
+}
+#padding-input:focus { outline: none; border-color: var(--c-interactive); }
+
+/* ── EDU component buttons ── */
+#edu-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  padding: 0 12px 6px;
+}
+.edu-btn {
+  padding: 6px 4px;
+  border-radius: var(--r-sm);
+  border: none;
+  background: var(--c-sec);
+  font-size: 10px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: center;
+  color: var(--c-text);
+  line-height: 1.3;
+}
+.edu-btn:hover  { background: var(--c-sec-h); }
+.edu-btn:active { background: #cec8c1; }
+.edu-btn.full {
+  grid-column: 1 / -1;
+  background: var(--c-interactive);
+  color: var(--c-text-inv);
+  font-weight: 700;
+  border-radius: var(--r-pill);
+  padding: 8px 4px;
+  font-size: 10.5px;
+}
+.edu-btn.full:hover  { background: var(--c-interactive-h); }
+.edu-btn.full:active { background: #500050; }
+
+/* ── Status line ── */
+#status-line {
+  font-size: 9.5px;
+  padding: 4px 12px 4px;
+  min-height: 20px;
+  color: var(--c-muted);
+}
+#status-line.error { color: var(--c-negative); font-weight: 600; }
+#status-line.ok    { color: var(--c-ok);       font-weight: 500; }
+
+/* ── Footer ── */
+#footer {
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px 10px;
+  border-top: 1px solid var(--c-border);
+  background: var(--c-surface);
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+}
+#btn-close {
+  flex: 0 0 auto;
+  padding: 7px 16px;
+  border-radius: var(--r-pill);
+  border: none;
+  background: var(--c-sec);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--c-text);
+  cursor: pointer;
+}
+#btn-close:hover  { background: var(--c-sec-h); }
+#btn-close:active { background: #cec8c1; }
+
+#btn-export {
+  flex: 1;
+  padding: 7px 0;
+  border-radius: var(--r-pill);
+  border: none;
+  background: var(--c-interactive);
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  color: var(--c-text-inv);
+  cursor: pointer;
+  letter-spacing: 0.01em;
+}
+#btn-export:hover    { background: var(--c-interactive-h); }
+#btn-export:active   { background: #500050; }
+#btn-export:disabled {
+  background: var(--c-interactive-d);
+  cursor: not-allowed;
+  color: var(--c-text-inv);
 }
 </style>
 
-<head>
-  <svg width="199px" height="141px" viewBox="0 0 199 141" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
-    <!-- Generator: Sketch 3.2.2 (9983) - http://www.bohemiancoding.com/sketch -->
-    <title>Lyft_logo</title>
-    <defs></defs>
-    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
-        <g id="logos" sketch:type="MSArtboardGroup" transform="translate(-112.000000, -79.000000)" fill="#FF00B7">
-            <path d="M112.746,82.343 L142.806,82.343 L142.806,163.017 C142.806,175.784 148.646,183.389 153.264,186.649 C148.375,190.995 133.435,194.798 122.298,185.562 C115.732,180.118 112.746,171.166 112.746,162.745 L112.746,82.343 Z M300.609,149.357 L300.609,140.879 L309.777,140.879 L309.777,111.136 L299.709,111.136 C295.844,93.279 279.946,79.898 260.933,79.898 C239.03,79.898 221.275,97.654 221.275,119.556 L221.275,189.015 C227.515,189.892 234.949,188.906 241.274,183.661 C247.839,178.216 250.825,169.265 250.825,160.844 L250.825,158.285 L265.838,158.285 L265.838,128.542 L250.825,128.542 L250.825,119.556 L250.861,119.556 C250.861,113.994 255.37,109.485 260.933,109.485 C266.495,109.485 271.022,113.994 271.022,119.556 L271.022,149.357 C271.022,171.259 288.796,189.015 310.698,189.015 L310.698,159.428 C305.136,159.428 300.609,154.919 300.609,149.357 Z M186.761,111.136 L186.761,154.787 C186.761,157.265 184.705,159.274 182.168,159.274 C179.631,159.274 177.575,157.265 177.575,154.787 L177.575,111.136 L147.831,111.136 L147.831,162.474 C147.831,171.709 150.963,183.389 165.216,187.192 C179.484,190.999 187.761,183.118 187.761,183.118 C187.007,188.31 182.117,192.113 174.24,192.928 C168.28,193.544 160.658,191.57 156.856,189.94 L156.856,217.139 C166.544,219.996 176.791,220.919 186.819,218.973 C205.018,215.442 216.504,200.231 216.504,179.994 L216.504,111.136 L186.761,111.136 Z" id="logo_standard" sketch:type="MSShapeGroup"></path>
-        </g>
+<head><script></script></head>
+<body>
+
+<!-- ── Header ── -->
+<div id="header">
+  <svg viewBox="0 0 199 141" xmlns="http://www.w3.org/2000/svg">
+    <g transform="translate(-112,-79)" fill="#FF00B7">
+      <path d="M112.746,82.343 L142.806,82.343 L142.806,163.017 C142.806,175.784 148.646,183.389 153.264,186.649 C148.375,190.995 133.435,194.798 122.298,185.562 C115.732,180.118 112.746,171.166 112.746,162.745 L112.746,82.343 Z M300.609,149.357 L300.609,140.879 L309.777,140.879 L309.777,111.136 L299.709,111.136 C295.844,93.279 279.946,79.898 260.933,79.898 C239.03,79.898 221.275,97.654 221.275,119.556 L221.275,189.015 C227.515,189.892 234.949,188.906 241.274,183.661 C247.839,178.216 250.825,169.265 250.825,160.844 L250.825,158.285 L265.838,158.285 L265.838,128.542 L250.825,128.542 L250.825,119.556 L250.861,119.556 C250.861,113.994 255.37,109.485 260.933,109.485 C266.495,109.485 271.022,113.994 271.022,119.556 L271.022,149.357 C271.022,171.259 288.796,189.015 310.698,189.015 L310.698,159.428 C305.136,159.428 300.609,154.919 300.609,149.357 Z M186.761,111.136 L186.761,154.787 C186.761,157.265 184.705,159.274 182.168,159.274 C179.631,159.274 177.575,157.265 177.575,154.787 L177.575,111.136 L147.831,111.136 L147.831,162.474 C147.831,171.709 150.963,183.389 165.216,187.192 C179.484,190.999 187.761,183.118 187.761,183.118 C187.007,188.31 182.117,192.113 174.24,192.928 C168.28,193.544 160.658,191.57 156.856,189.94 L156.856,217.139 C166.544,219.996 176.791,220.919 186.819,218.973 C205.018,215.442 216.504,200.231 216.504,179.994 L216.504,111.136 L186.761,111.136 Z"/>
     </g>
-</svg>
-  <script>
-    
+  </svg>
+  <h1>UI Walkthroughs</h1>
+  <span id="version"></span>
+</div>
 
-  </script>
-</head>
+<!-- ── Frame sizes section ── -->
+<div class="section" id="frames-section">
+  <div class="section-label">Frames</div>
+  <div id="frame-list"></div>
+  <div id="hint">Default size: 393 × 852 &nbsp;·&nbsp; unless scroll animation</div>
+  <div id="error-summary"></div>
+  <div style="padding: 4px 12px 8px">
+    <button id="btn-scale-all">Scale all → 393</button>
+  </div>
+</div>
 
-<body >
+<!-- ── Add EDU components section ── -->
+<div class="section" id="components-section">
+  <div class="section-label">Add EDU Component</div>
+  <div id="selection-info" class="empty">No element selected</div>
 
-<h1>UI Walkthroughs</h1>
-<edu>by Educational Content<br>
-  <d>Figma to AE sequence using components.</d>
-</edu>
-  
-  <span  id="Version"></span>
+  <div id="padding-row">
+    <span>Padding</span>
+    <input type="number" id="padding-input" value="2" min="0" max="200">
+    <span>px</span>
+  </div>
 
+  <div id="edu-buttons">
+    <button class="edu-btn full" data-type="step-click">
+      HL Button + Step + Click
+    </button>
+    <button class="edu-btn full" data-type="step-click-area" style="background:var(--c-interactive-h)">
+      HL Area + Step + Click
+    </button>
+    <button class="edu-btn" data-type="highlight">
+      Highlight
+    </button>
+    <button class="edu-btn" data-type="highlight-button">
+      HL Button
+    </button>
+    <button class="edu-btn" data-type="click">
+      Click
+    </button>
+    <button class="edu-btn" data-type="swipe">
+      Swipe
+    </button>
+    <button class="edu-btn" data-type="scroll">
+      Scroll
+    </button>
+    <button class="edu-btn" data-type="drag">
+      Drag
+    </button>
+  </div>
+
+  <div id="status-line"></div>
+</div>
+
+<!-- ── Footer ── -->
+<div id="footer">
+  <button id="btn-close">Close</button>
+  <button id="btn-export">Export</button>
+</div>
 
 </body>
-
 </html>

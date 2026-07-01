@@ -1,132 +1,143 @@
-# Figma Script Documentation
+# EDU-UI Walkthroughs — Figma Plugin
 
-## Overview
+A Figma plugin that validates, annotates, and exports UI screens as a ZIP (PNGs + JSON) for rendering as animated UI walkthroughs. The ZIP is the shared input contract for both render paths:
 
-This script utilizes EDU UI Figma components to drive UI walkthrough animations in After Effects. It allows designers to create seamless and interactive UI animations by leveraging pre-built components.
+| Render path | Repo | Requirements |
+|---|---|---|
+| **Headless (Playwright)** | [render-playwright](https://github.com/ramiroabelardodelgado-lyft/render-playwright) | Node 20+, ffmpeg — no Adobe license needed |
+| **After Effects** | AE_Walkthroughs.jsx (separate) | After Effects |
 
-## How It Works
+The Playwright renderer covers the majority of walkthroughs and produces MP4s with no Adobe dependency. After Effects is available for cases that need manual timeline control.
 
-1. **Place EDU UI Components**:
-   - Use the EDU UI Figma components and place them over the UI screen you are working on.
-   - Ensure that these components are placed in the highest hierarchy possible within a container Frame, as shown in the image below.
+---
 
-   ![Hierarchy Example](./img/hierarchy.png)
+## Installation
 
-2. **Naming Conventions**:
-   - In the current version (0.17), the names of the EDU components should NOT be modified. The script relies on these names to determine which animation is being used.
+1. Clone or download this repository to a permanent location (not Downloads — deleting the folder breaks the plugin).
+2. In Figma: right-click the canvas → **Plugins > Development > Import plugin from manifest…**
+3. Select `manifest.json` from the cloned folder.
+4. The plugin is now available via `⌘/` → type **EDU-UI Walkthroughs**, or right-click → **Plugins > Development**.
 
-## Installation Process
+---
 
-1. **Download the Plugin**:
-   - Download / Clone the GitHub repository.
-2. **Copy Files**:
-   - Copy the contents of the downloaded zip to a location that is not your downloads folder. If you delete these files after installing through the Development menu, it will break the plugin.
+## Workflow
 
-3. **Import Plugin**:
-   - Right-click the canvas and navigate to `Plugins > Development > Import plugin from manifest...`.
-    ![import](./img/import.png)
+### 1. Select your frames
+Select the Frames, Section, or Component containing your screens. The plugin panel opens automatically showing a pre-flight check.
 
-   - Navigate to the folder you created in step 2, and select the `manifest.json` file.
-    ![manifest](./img/manifest.png)
+### 2. Fix frame sizes (if needed)
+The plugin flags any frame that isn't **393 px wide**. Use the per-frame **→ 393** button or **Scale all → 393** to resize. Scaling uses Figma's scale tool — contents scale proportionally, and height snaps to 852 if within ±4 px.
 
+### 3. Annotate interactions
+Select any element inside a screen frame and click an EDU component button to insert it at the correct position:
 
-4. **Access the Plugin**:
-   - The panel will close and the UI walkthrough will now be available by:
-     - Pressing `CMD+/` or `Ctrl+/` to open the Quick Actions menu and start typing 'edu-ui-walkthroughs', or
-     - Right-clicking and navigating to `Plugins > Development > edu-ui-walkthrough`.
-        ![menu](./img/menu.png)
+| Button | Inserts | Notes |
+|---|---|---|
+| **HL Button + Step + Click** | EDU-Highlight_Button + EDU-Step + EDU-click | Standard tappable button |
+| **HL Area + Step + Click** | EDU-Highlight + EDU-Step + EDU-click | Squared/area tap target |
+| **Highlight** | EDU-Highlight | Area highlight only |
+| **HL Button** | EDU-Highlight_Button | Button highlight only |
+| **Click** | EDU-click | Tap indicator (50×50 circle) |
+| **Swipe** | EDU-swipe | Swipe gesture overlay |
+| **Scroll** | EDU-scroll | 393×852 viewport outline — marks scroll boundary |
+| **Drag** | EDU-drag | Drag gesture overlay |
 
+**Padding** (default 2 px) controls how much the highlight extends beyond the selected element. Elements ≥ 380 px wide are capped at 380 px (no padding applied).
 
+**Step** circles are positioned ¾ above the highlight top edge. **Click** circles are centered on the selected element.
 
-## How to Run the Plugin
+### 4. Export
+Click **Export**. The plugin will:
+- Rename frames to `01`, `02`, `03`… (left-to-right by canvas position, EDU- nodes excluded)
+- Set `clipsContent = true` on each frame
+- Strip frame-level shadows, strokes, and corner radii
+- Export each frame as a 1290 px wide PNG
+- Bundle all PNGs + a `data.json` into a ZIP named after the current Figma page
 
-1. **Select Frames**:
-   - Before running the Figma script, select the Frames you want to export.
+Pass the ZIP directly to [render-playwright](https://github.com/ramiroabelardodelgado-lyft/render-playwright) (`npm run render -- export.zip`) or unzip and point **AE_Walkthroughs.jsx** at the folder.
 
-2. **Open Plugin Menu**:
-   - Press the `⌘` (cmd) and `,` (comma) keys to open the plugin menu.
+---
 
-3. **Run the Script**:
-   - Type `edu-ui-walkthrough` and press Enter.
-   - The script will rename the selected Frames (in Left to Right order) as 01, 02, 03, etc.
-     - *Note*: The order of selection doesn't matter; it uses the Frame's global x position on the canvas for the order.
+## JSON output format
 
-4. **Save Exported Files**:
-   - The script will prompt you to save a zip file. This file contains PNG exports of your frames and a JSON file necessary for the AE-walkthrough plugin.
+Each EDU component is recorded in the JSON alongside its parent frame:
 
-## Usage Instructions
+```json
+[
+  {
+    "name": "01",
+    "o_width": 393,
+    "o_height": 852,
+    "data": [
+      {
+        "name": "EDU-Highlight_Button",
+        "x": 10, "y": 200,
+        "width": 373, "height": 52,
+        "opacity": 1, "rotation": 0,
+        "cornerRadius": 10,
+        "parent": "01"
+      }
+    ]
+  }
+]
+```
 
-1. **Setup**:
-   - Open your Figma project and navigate to the UI screen you want to animate.
-   - Drag and drop the EDU UI components onto your screen.
+---
 
-2. **Hierarchy**:
-   - Ensure that the components are placed at the highest hierarchy within a container Frame. This is crucial for the script to function correctly.
+## EDU component naming reference
 
-3. **Naming**:
-   - Do not change the names of the EDU components. The script uses these names to identify and apply the correct animations.
+EDU components are identified by name prefix. Do not rename them — both the Playwright renderer and the AE script rely on these exact names.
 
-## Example Use Cases
+| Prefix | Animation type |
+|---|---|
+| `EDU-Highlight` | Area highlight pulse |
+| `EDU-Highlight_Button` | Button highlight pulse |
+| `EDU-Step` | Step number indicator |
+| `EDU-click` | Tap ripple |
+| `EDU-swipe` | Swipe gesture |
+| `EDU-scroll` | Scroll boundary outline |
+| `EDU-drag` | Drag gesture |
 
-- Creating interactive UI walkthroughs for onboarding new users.
-- Demonstrating new features or updates in a UI.
-- Enhancing presentations with animated UI elements.
+---
 
-## Prerequisites
+## Changelog
 
-- Figma account with access to the EDU UI components.
-- After Effects for rendering the animations.
+### [v1.0.19] — 2026-05-13
+- Added **HL Area + Step + Click** combo button (EDU-Highlight variant)
+- `cornerRadius` now stored in JSON export for all EDU components
 
-## Dependencies
+### [v1.0.18]
+- Wide element cap: highlights on elements ≥ 380 px wide max out at 380 px (no padding)
 
-- EDU UI Figma components library.
+### [v1.0.17]
+- EDU-scroll fixed to 393×852 px, stroke-only (no fill), anchored at frame origin
 
+### [v1.0.16]
+- Applied Lyft Product Language (LPL) Core UI tokens throughout plugin panel
 
-README
+### [v1.0.15]
+- Added HL Button + Step + Click combo button
+- Step indicator: 50×50 circle, ¾ above highlight top edge
+- Click indicator: 50×50 circle centered on selected element
+- Highlights default to `cornerRadius: 10`; default padding changed to 2 px
 
-This Figma plugin uses EDU-UI components to quickly mockup ui walkthroughs, this plugin exports
-a zip file containing pngs and a json file.
-The pngs are from selected frames or frames under a selected Figma "Section" using a 1290x2796 image resolution settings setting. 
-The json contains each of the EDU-UI Components position, size and name, as well as the original Frame size.
-The zip file should be unzipped in order to be read by the AE_Walkthroughs.jsx after effects script.
+### [v1.0.14]
+- EDU component insertion panel with 7 component types
+- Live selection info in plugin panel
+- `selectionchange` listener keeps frame list live
 
-Changelog
+### [v1.0.13]
+- Pre-flight frame size check with red canvas overlay for non-393 frames
+- Per-frame Scale → 393 button and Scale all → 393 button
+- Export and Close buttons replace auto-run on load
+- Export cleanup: `clipsContent`, strips frame shadows/strokes/corner radii
+- Plugin stays open after export; Export button re-enables
 
-### [V.17] - YYYY-MM-DD
+### [v0.17] — legacy
+- Support for 393 px and 1290 px source frame widths
 
-#### Added
+### [v0.16] — legacy
+- H and V scroll support
 
-* Support for different original frame sizes (393px or 1290px width for Figma files or simulator).
-
-### [V.16] - YYYY-MM-DD
-
-#### Added
-
-* Changelog with H and V scrolls
-* EDU Figma to AE UI Walkthrough
-
-### [V.15] - YYYY-MM-DD
-
-#### Added
-
-* EDU NLA Figma to AE UI Walkthrough (After Effects Property script)
-
-### [V.13] - YYYY-MM-DD
-
-#### Added
-
-* ZIP file support (Figma plugin)
-
-### [V.01] - YYYY-MM-DD
-
-#### Added
-
-* EDU NLA Mod of Duik's NLA
-
-## To-do List
-
-* Fix NLA animation properties scripted expression
-* Change EDU-Highlight animation implementing NLA building blocks
-* Add support for stacked highlights or scrolls
-* Embed NLA and JSX to the zip file
-* Make it template-less (remove the need for the extra "template" file)
+### [v0.13] — legacy
+- ZIP export

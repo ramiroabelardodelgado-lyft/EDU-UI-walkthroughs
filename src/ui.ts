@@ -1,177 +1,208 @@
 import JSZip from '../node_modules/jszip/dist/jszip.min.js';
 import { saveAs } from 'file-saver';
 
-//import edUI_file from "edUI";
-//import eduNLA_file from "@edu/eduNLA";
+var vers = '1.0.19';
+console.log(`Loaded ui.ts v. ${vers}`);
 
-
-var vers = '1.0.17';
-console.log( `Loaded ui.ts v. ${vers}`);
-
-// ADDED JSZip
-// FIXed webpack --watch & buildd
 let zip = new JSZip();
-let zippedStuff = [];
-let zipName ='';
+let zippedStuff: { name: string; data: any }[] = [];
+let zipName = '';
 
-window.addEventListener('load', function () {
-    let spantag = document.getElementById("Version");
-    spantag.innerHTML = `v. ${vers}`;
+// ── On load: wire up buttons ───────────────────────────────────────────────────
+
+window.addEventListener('load', () => {
+  const versionEl = document.getElementById("version");
+  if (versionEl) versionEl.innerHTML = `v. ${vers}`;
+
+  document.getElementById("btn-close")!.addEventListener("click", () => {
+    parent.postMessage({ pluginMessage: { type: "closePlugin" } }, "*");
   });
 
-function addFiles(name,data){
-    console.log(`${name} zipped`)
-    zip.file(name,data,{base64: true});
-    zippedStuff.push({name,data});
-};
+  document.getElementById("btn-export")!.addEventListener("click", () => {
+    const btn = document.getElementById("btn-export") as HTMLButtonElement;
+    btn.disabled = true;
+    btn.textContent = "Exporting…";
+    // Reset zip for a fresh export
+    zip = new JSZip();
+    zippedStuff = [];
+    parent.postMessage({ pluginMessage: { type: "startExport" } }, "*");
+  });
 
-async function getFileFromUrl(url, name, defaultType = 'image/jpeg'){
-    const response = await fetch(url);
-    const data = await response.blob();
-    return new File([data], name, {
-      type: data.type || defaultType,
+  document.getElementById("btn-scale-all")!.addEventListener("click", () => {
+    parent.postMessage({ pluginMessage: { type: "scaleAll" } }, "*");
+  });
+
+  // EDU component buttons
+  document.querySelectorAll<HTMLButtonElement>(".edu-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const type    = btn.dataset.type!;
+      const padding = parseInt((document.getElementById("padding-input") as HTMLInputElement).value, 10) || 8;
+      parent.postMessage({ pluginMessage: { type: "addEduComponent", componentType: type, padding } }, "*");
     });
-  }
-async function getfile(filepath){
-    const file = await getFileFromUrl(filepath,filepath.split('/')[1]);
-    return file;
+  });
+});
 
+// ── Zip helpers ────────────────────────────────────────────────────────────────
 
+function addFiles(name: string, data: any) {
+  zip.file(name, data, { base64: true });
+  zippedStuff.push({ name, data });
 }
-function sendScripts(){
-    let data1_fp = './UI_walkthrough.jsx';
-    let data1 = getfile(data1_fp);
 
-    //let data2fp = './eduNLA';
+function addJson(name: string, data: any) {
+  zip.file(name, data);
+  zippedStuff.push({ name, data });
+}
 
-    //fetch(data1fp).then( (data) => zip.file(data,'UI_walkthrough'));
-    //let data1 = open(data1fp);
-    zip.file(data1 ,'UI_walkthrough');
+// ── Plugin message handler ─────────────────────────────────────────────────────
 
-    parent.postMessage({ pluginMessage: 'done' }, '*');
+window.addEventListener("message", (event) => {
+  if (!event.data.pluginMessage) return;
+  const msg = event.data.pluginMessage;
+  console.log(`message - ${msg.function}`);
 
-
-    //await fetch(data2fp).then( (data) => zip.file(data,'eduNLA'));
-
-};
-
-function addJson(name,data){
-    console.log('json zipped')
-    zip.file(name,data);
-    zippedStuff.push({name,data});
-};
-
-window.addEventListener("message", (event) => { 
-    //console.log("message trigger") 
-    let message = event.data;
-    //console.log('MSG RCVD')
-
-    if(event.data.pluginMessage){
-        message = event.data.pluginMessage
-        console.log(` message - ${message.function}`)
-
-        if(message.function === "download"){
-            let imgBlob = new Blob([message.imageData.buffer], { type: 'image/png' } )
-            
-            //saveAs(imgBlob);
-            //downloadBlob(imgBlob,"download.png")
-        };
-        if(message.function === "pageName"){
-            zipName = message.pageName;
-            //console.log(zipName)
-        }
-        if(message.function === "addJson"){
-            let jsonBlob = new Blob([message.jsonData], { type: 'application/json' } )
-            //console.log(message.jsonData)
-            //saveAs(jsonBlob);
-            let name = 'test.json';
-            zip.file(name,message.jsonData);
-            //addJson(pagename,jsonBlob);
-
-            //downloadBlob(jsonBlob,pagename)
-        };
-        if(message.function === "addImage"){
-
-            let data = message.imageData;
-            let name = message.name;
-            let imgData = new Blob([message.imageData.buffer], { type: 'image/png' } )
-            console.log( `${name}`+' sent to zip');
-            addFiles(name,imgData);
-        }
-        if(message.function === "sendScripts"){
-            //sendScripts();
-        }
-        if(message.function === "startDownload"){
-            //console.log(zippedStuff);
-            //let zip = zipTree(zippedStuff);
-            zip.generateAsync({type:"blob"}).then(function(content) {
-                // see FileSaver.js
-                console.log('zip.genAsync()');
-                console.log(content);
-                
-                //console.log(zippedStuff);
-            saveAs(content, `${zipName}.zip`);
-            parent.postMessage({ pluginMessage: 'Close Plugin' }, '*')
-
-            });
-        }
-    }      
-}, false); 
-
-/* 
-export function zipTree(tree) {
-    let zip = new JSZip()
-  
-    function walkTree(target, tree) {
-      for (let [name, content] of Object.entries(tree)) {
-        let options
-        if (Array.isArray(content)) {
-          options = content[1]
-          content = content[0]
-        }
-  
-        if (typeof content === 'object' && content.toString() === '[object Object]') {
-          let folder = target.folder(name, content, options)
-  
-          walkTree(folder, content)
-        } else {
-          target.file(name, content, options)
-        }
-      }
-    }
-  
-    walkTree(zip, tree)
-  
-    return zip
+  // ── Frame pre-flight check ──────────────────────────────────────────────────
+  if (msg.function === "frameCheck") {
+    renderFrameList(msg.frames);
+    return;
   }
- */
 
-/* DEPRECATAD BY saveAS
-//ui.html (plugin iframe) 
-function downloadBlob(blob, name = 'download') {
-    // Convert your blob into a Blob URL (a special url that points to an object in the browser's memory)
-    const blobUrl = URL.createObjectURL(blob)
+  // ── Selection changed ───────────────────────────────────────────────────────
+  if (msg.function === "selectionInfo") {
+    renderSelectionInfo(msg.element);
+    return;
+  }
 
-    // Create a link element
-    const link = document.createElement("a")
+  // ── Status message from plugin ──────────────────────────────────────────────
+  if (msg.function === "status") {
+    showStatus(msg.text, msg.error);
+    return;
+  }
 
-    // Set link's href to point to the Blob URL
-    link.href = blobUrl
-    link.download = name
+  // ── Reset zip (called before export starts) ─────────────────────────────────
+  if (msg.function === "resetZip") {
+    zip = new JSZip();
+    zippedStuff = [];
+    return;
+  }
 
-    // Append link to the body
-    document.body.appendChild(link)
+  // ── Page name for zip file ──────────────────────────────────────────────────
+  if (msg.function === "pageName") {
+    zipName = msg.pageName;
+    return;
+  }
 
-    // Dispatch click event on the link
-    // This is necessary as link.click() does not work on the latest firefox
-    link.dispatchEvent(
-        new MouseEvent('click', { 
-        bubbles: true, 
-        cancelable: true, 
-        view: window 
-        })
-    )
+  // ── Add JSON data to zip ────────────────────────────────────────────────────
+  if (msg.function === "addJson") {
+    zip.file("test.json", msg.jsonData);
+    return;
+  }
 
-    // Remove link from body
-    document.body.removeChild(link)
-}; */
+  // ── Add frame PNG to zip ────────────────────────────────────────────────────
+  if (msg.function === "addImage") {
+    const imgData = new Blob([msg.imageData.buffer], { type: "image/png" });
+    console.log(`${msg.name} sent to zip`);
+    addFiles(msg.name, imgData);
+    return;
+  }
+
+  // ── Trigger ZIP download ────────────────────────────────────────────────────
+  if (msg.function === "startDownload") {
+    zip.generateAsync({ type: "blob" }).then(content => {
+      saveAs(content, `${zipName}.zip`);
+      // Restore export button — plugin stays open
+      const btn = document.getElementById("btn-export") as HTMLButtonElement;
+      btn.disabled = false;
+      btn.textContent = "Export";
+      showStatus(`Exported ${zipName}.zip`, false);
+    });
+    return;
+  }
+}, false);
+
+// ── Render frame list ──────────────────────────────────────────────────────────
+
+function renderFrameList(frames: Array<{ name: string; width: number; height: number; ok: boolean }>) {
+  const list    = document.getElementById("frame-list")!;
+  const hint    = document.getElementById("hint")!;
+  const summary = document.getElementById("error-summary")!;
+  list.innerHTML = "";
+
+  if (!frames || frames.length === 0) {
+    list.innerHTML = '<div style="padding:4px 12px;font-size:11px;color:#aaa">No frames detected</div>';
+    hint.style.display = "none";
+    summary.style.display = "none";
+    return;
+  }
+
+  const badCount = frames.filter(f => !f.ok).length;
+  hint.style.display    = badCount > 0 ? "block" : "none";
+  summary.style.display = badCount > 0 ? "block" : "none";
+  summary.textContent   = badCount > 0
+    ? `⚠ ${badCount} frame${badCount > 1 ? "s" : ""} need${badCount === 1 ? "s" : ""} resizing to 393 px`
+    : "";
+
+  frames.forEach(f => {
+    const row = document.createElement("div");
+    row.className = `frame-row ${f.ok ? "ok" : "warn"}`;
+
+    const dot = document.createElement("span");
+    dot.className = "dot";
+    dot.textContent = "●";
+
+    const name = document.createElement("span");
+    name.className = "frame-name";
+    name.textContent = f.name;
+
+    const dims = document.createElement("span");
+    dims.className = "frame-dims";
+    dims.textContent = `${f.width} × ${f.height}`;
+
+    row.appendChild(dot);
+    row.appendChild(name);
+    row.appendChild(dims);
+
+    if (!f.ok) {
+      const btn = document.createElement("button");
+      btn.className = "scale-btn";
+      btn.textContent = "→ 393";
+      btn.addEventListener("click", () => {
+        parent.postMessage({ pluginMessage: { type: "scaleFrame", frameName: f.name } }, "*");
+      });
+      row.appendChild(btn);
+    }
+
+    list.appendChild(row);
+  });
+}
+
+// ── Render selection info ──────────────────────────────────────────────────────
+
+function renderSelectionInfo(element: { name: string; width: number; height: number; isEdu: boolean; screenName: string } | null) {
+  const el = document.getElementById("selection-info")!;
+
+  if (!element) {
+    el.className = "empty";
+    el.textContent = "No element selected";
+    return;
+  }
+
+  if (element.isEdu) {
+    el.className = "edu";
+    el.textContent = `${element.name} (EDU — select a design element)`;
+    return;
+  }
+
+  el.className = "";
+  el.textContent = `${element.name}  ·  ${element.width} × ${element.height}  in ${element.screenName}`;
+}
+
+// ── Status line ────────────────────────────────────────────────────────────────
+
+function showStatus(text: string, error: boolean) {
+  const el = document.getElementById("status-line")!;
+  el.textContent = text;
+  el.className   = error ? "error" : "ok";
+  // Errors stay until next action; success messages clear after 6 s
+  if (!error) setTimeout(() => { if (el.textContent === text) el.textContent = ""; }, 6000);
+}
