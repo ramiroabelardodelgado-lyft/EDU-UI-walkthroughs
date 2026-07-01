@@ -102,38 +102,38 @@ EDU components are identified by name prefix. Do not rename them — both the Pl
 
 ## Changelog
 
-### [v1.0.19] — 2026-05-13
-- Added **HL Area + Step + Click** combo button (EDU-Highlight variant)
+### [v1.0.19] — May 2026
+- Added **HL Area + Step + Click** combo button (EDU-Highlight variant for squared tap targets)
 - `cornerRadius` now stored in JSON export for all EDU components
 
-### [v1.0.18]
-- Wide element cap: highlights on elements ≥ 380 px wide max out at 380 px (no padding)
+### [v1.0.18] — May 2026
+- Wide element cap: highlights on elements ≥ 380 px wide max out at 380 px (no padding applied)
 
-### [v1.0.17]
-- EDU-scroll fixed to 393×852 px, stroke-only (no fill), anchored at frame origin
+### [v1.0.17] — May 2026
+- EDU-scroll fixed to 393×852 px, stroke-only (no fill), anchored at frame origin — marks scroll boundary
 
-### [v1.0.16]
-- Applied Lyft Product Language (LPL) Core UI tokens throughout plugin panel
+### [v1.0.16] — May 2026
+- Applied Lyft Product Language (LPL) Core UI tokens throughout plugin panel (Rebel Sans VF, #820076 primary, #c81534 warn)
 
-### [v1.0.15]
-- Added HL Button + Step + Click combo button
+### [v1.0.15] — March 2026
+- Added **HL Button + Step + Click** combo button
 - Step indicator: 50×50 circle, ¾ above highlight top edge
 - Click indicator: 50×50 circle centered on selected element
 - Highlights default to `cornerRadius: 10`; default padding changed to 2 px
 
-### [v1.0.14]
-- EDU component insertion panel with 7 component types
+### [v1.0.14] — March 2026
+- EDU component insertion panel: 7 component types inserted at correct position relative to selected element
 - Live selection info in plugin panel
-- `selectionchange` listener keeps frame list live
+- `selectionchange` listener keeps frame list live without disrupting EDU component work
 
-### [v1.0.13]
-- Pre-flight frame size check with red canvas overlay for non-393 frames
-- Per-frame Scale → 393 button and Scale all → 393 button
+### [v1.0.13] — March 2026
+- Pre-flight frame size check with red canvas overlay for non-393 px frames
+- Per-frame **→ 393** button and **Scale all → 393** (uses `rescale()` — scales contents, not just bounds)
 - Export and Close buttons replace auto-run on load
-- Export cleanup: `clipsContent`, strips frame shadows/strokes/corner radii
+- Export cleanup: `clipsContent = true`, strips frame-level shadows, strokes, and corner radii
 - Plugin stays open after export; Export button re-enables
 
-### [v0.17] — legacy
+### [v0.17] — November 2024
 - Support for 393 px and 1290 px source frame widths
 
 ### [v0.16] — legacy
