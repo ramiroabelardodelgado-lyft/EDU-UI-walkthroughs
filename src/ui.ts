@@ -25,7 +25,8 @@ window.addEventListener('load', () => {
     // Reset zip for a fresh export
     zip = new JSZip();
     zippedStuff = [];
-    parent.postMessage({ pluginMessage: { type: "startExport" } }, "*");
+    const useSectionName = (document.getElementById("chk-section-name") as HTMLInputElement).checked;
+    parent.postMessage({ pluginMessage: { type: "startExport", useSectionName } }, "*");
   });
 
   document.getElementById("btn-scale-all")!.addEventListener("click", () => {

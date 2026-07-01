@@ -17,8 +17,33 @@ function opacity_Toggle(node, override = undefined) {
   return node;
 }
 
-function sendPagename() {
-  figma.ui.postMessage({ function: "pageName", pageName: figma.currentPage.name });
+// ── Locale suffix lookup ───────────────────────────────────────────────────────
+// Update these strings if the source page name format ever changes.
+const LOOKUP_LOCALE_SUFFIX_FR = "[French (Canada) [fr-CA] (fr-CA)]";
+const LOOKUP_LOCALE_SUFFIX_ES = "[Spanish (United States) [es-US] (es-US)]";
+
+function getLangSuffix(pageName: string): string {
+  if (pageName.endsWith(LOOKUP_LOCALE_SUFFIX_FR)) return "_" + LOOKUP_LOCALE_SUFFIX_FR;
+  if (pageName.endsWith(LOOKUP_LOCALE_SUFFIX_ES)) return "_" + LOOKUP_LOCALE_SUFFIX_ES;
+  return "_EN";
+}
+
+// Returns the ZIP base name based on selection and toggle state.
+// useSectionName=true + section selected → "{sectionName}{langSuffix}"
+// otherwise → full page name (legacy behaviour, no suffix)
+function getZipName(useSectionName: boolean): string {
+  const pageName = figma.currentPage.name;
+  if (!useSectionName) return pageName;
+
+  const sel = figma.currentPage.selection;
+  const sectionName = sel.length > 0 && sel[0].type === "SECTION" ? sel[0].name : null;
+  if (!sectionName) return pageName;
+
+  return sectionName + getLangSuffix(pageName);
+}
+
+function sendPagename(useSectionName: boolean) {
+  figma.ui.postMessage({ function: "pageName", pageName: getZipName(useSectionName) });
 }
 
 function check_child(child) {
@@ -468,10 +493,10 @@ function reOrder_layers(toTop) {
   });
 }
 
-async function main(type: string) {
+async function main(type: string, useSectionName: boolean) {
   sendScripts();
   await getFrames(type);
-  sendPagename();
+  sendPagename(useSectionName);
   sendDownload();
 }
 
@@ -496,10 +521,10 @@ figma.ui.onmessage = async (message) => {
 
   if (message?.type === "startExport") {
     const type = checkSelection();
+    const useSectionName = message.useSectionName !== false; // default true
     getSelectionFrames(type).forEach(f => cleanWarningOverlay(f as FrameNode));
-    // Reset zip for new export
     figma.ui.postMessage({ function: "resetZip" });
-    await main(type);
+    await main(type, useSectionName);
     return;
   }
 

@@ -255,6 +255,30 @@ body {
   cursor: not-allowed;
   color: var(--c-text-inv);
 }
+
+/* ── Section name toggle ── */
+#section-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px 8px;
+  background: var(--c-surface);
+  border-top: 1px solid var(--c-border);
+}
+#section-name-row label {
+  font-size: 10px;
+  color: var(--c-muted);
+  cursor: pointer;
+  user-select: none;
+  flex: 1;
+}
+#section-name-row input[type="checkbox"] {
+  accent-color: var(--c-interactive);
+  width: 12px;
+  height: 12px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
 </style>
 
 <head><script></script></head>
@@ -321,6 +345,12 @@ body {
   </div>
 
   <div id="status-line"></div>
+</div>
+
+<!-- ── Section name toggle ── -->
+<div id="section-name-row">
+  <input type="checkbox" id="chk-section-name" checked>
+  <label for="chk-section-name">Use section name for export file</label>
 </div>
 
 <!-- ── Footer ── -->
