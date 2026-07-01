@@ -13,6 +13,7 @@ let zipName = '';
 window.addEventListener('load', () => {
   const versionEl = document.getElementById("version");
   if (versionEl) versionEl.innerHTML = `v. ${vers}`;
+  reportHeight();
 
   document.getElementById("btn-close")!.addEventListener("click", () => {
     parent.postMessage({ pluginMessage: { type: "closePlugin" } }, "*");
@@ -175,6 +176,7 @@ function renderFrameList(frames: Array<{ name: string; width: number; height: nu
 
     list.appendChild(row);
   });
+  reportHeight();
 }
 
 // ── Render selection info ──────────────────────────────────────────────────────
@@ -196,6 +198,16 @@ function renderSelectionInfo(element: { name: string; width: number; height: num
 
   el.className = "";
   el.textContent = `${element.name}  ·  ${element.width} × ${element.height}  in ${element.screenName}`;
+}
+
+// ── Auto-resize ────────────────────────────────────────────────────────────────
+
+function reportHeight() {
+  // Wait one frame so the DOM has finished painting before measuring
+  requestAnimationFrame(() => {
+    const h = Math.ceil(document.documentElement.scrollHeight);
+    parent.postMessage({ pluginMessage: { type: "uiResize", height: h } }, "*");
+  });
 }
 
 // ── Status line ────────────────────────────────────────────────────────────────

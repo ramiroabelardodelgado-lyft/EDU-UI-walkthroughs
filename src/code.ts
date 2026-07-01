@@ -146,13 +146,6 @@ function runPrecheck() {
     return { name: f.name, width: Math.round(f.width), height: Math.round(f.height), ok };
   });
 
-  const warningCount = frameInfos.filter(f => !f.ok).length;
-  const uiHeight = Math.min(
-    Math.max(420, 180 + 36 * frames.length + (warningCount > 0 ? 24 : 0)),
-    600
-  );
-  figma.ui.resize(300, uiHeight);
-
   figma.ui.postMessage({ function: "frameCheck", frames: frameInfos });
 }
 
@@ -399,7 +392,6 @@ function refreshFrameList() {
       return { name: f.name, width: Math.round(f.width), height: Math.round(f.height), ok };
     });
 
-    figma.ui.resize(300, Math.min(Math.max(420, 180 + 36 * frames.length), 600));
     figma.ui.postMessage({ function: "frameCheck", frames: frameInfos });
   } catch (_) {
     figma.ui.postMessage({ function: "frameCheck", frames: [] });
@@ -511,6 +503,11 @@ figma.ui.onmessage = async (message) => {
 
   if (message === "Close Plugin" || message?.type === "closePlugin") {
     figma.closePlugin();
+    return;
+  }
+
+  if (message?.type === "uiResize") {
+    figma.ui.resize(300, Math.min(Math.max(message.height, 300), 800));
     return;
   }
 
