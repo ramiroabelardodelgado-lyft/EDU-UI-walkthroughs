@@ -256,6 +256,106 @@ body {
   color: var(--c-text-inv);
 }
 
+/* ── Render section ── */
+#render-section .section-label { display: flex; align-items: center; gap: 6px; }
+#server-status-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--c-muted); flex-shrink: 0;
+  transition: background 200ms;
+}
+#server-status-dot.online { background: var(--c-ok); }
+#server-status-text {
+  margin-left: auto;
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--c-muted);
+  text-transform: none;
+}
+#server-status-text.online { color: var(--c-ok); }
+
+#render-hint {
+  font-size: 9.5px;
+  color: var(--c-muted);
+  padding: 2px 12px 6px;
+}
+#render-hint code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  background: var(--c-bg);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 9.5px;
+}
+
+#render-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  padding: 0 12px 6px;
+}
+.render-btn {
+  padding: 8px 4px;
+  border-radius: var(--r-pill);
+  border: none;
+  background: var(--c-interactive);
+  font-size: 10.5px;
+  font-weight: 700;
+  font-family: inherit;
+  color: var(--c-text-inv);
+  cursor: pointer;
+  text-align: center;
+  letter-spacing: 0.01em;
+}
+.render-btn:hover  { background: var(--c-interactive-h); }
+.render-btn:active { background: #500050; }
+.render-btn:disabled {
+  background: var(--c-interactive-d);
+  cursor: not-allowed;
+}
+
+#render-status {
+  font-size: 9.5px;
+  padding: 4px 12px 4px;
+  min-height: 16px;
+  color: var(--c-muted);
+}
+#render-status.error { color: var(--c-negative); font-weight: 600; }
+#render-status.ok    { color: var(--c-ok); font-weight: 500; }
+
+#preview-area {
+  padding: 6px 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: stretch;
+}
+#preview-video {
+  width: 100%;
+  max-height: 340px;
+  background: #000;
+  border-radius: var(--r-sm);
+  display: block;
+}
+#preview-meta {
+  font-size: 9.5px;
+  color: var(--c-muted);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+#btn-save-mp4 {
+  padding: 7px 0;
+  border-radius: var(--r-pill);
+  border: none;
+  background: var(--c-sec);
+  font-size: 10.5px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--c-text);
+  cursor: pointer;
+}
+#btn-save-mp4:hover  { background: var(--c-sec-h); }
+#btn-save-mp4:active { background: #cec8c1; }
+
 /* ── Section name toggle ── */
 #section-name-row {
   display: flex;
@@ -345,6 +445,26 @@ body {
   </div>
 
   <div id="status-line"></div>
+</div>
+
+<!-- ── Render section (local server) ── -->
+<div class="section" id="render-section">
+  <div class="section-label">
+    <span id="server-status-dot"></span>
+    <span>Render</span>
+    <span id="server-status-text">not connected</span>
+  </div>
+  <div id="render-hint">Renderer not running — start with <code>npm run server</code></div>
+  <div id="render-buttons">
+    <button class="render-btn" id="btn-render-full" disabled>Render MP4</button>
+    <button class="render-btn" id="btn-render-compressed" disabled>Render 480p</button>
+  </div>
+  <div id="render-status"></div>
+  <div id="preview-area" hidden>
+    <video id="preview-video" controls playsinline></video>
+    <div id="preview-meta"></div>
+    <button id="btn-save-mp4">Save MP4</button>
+  </div>
 </div>
 
 <!-- ── Section name toggle ── -->

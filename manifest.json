@@ -13,7 +13,8 @@
 
   "networkAccess": {
     "allowedDomains": [
-      "none"
-    ]
+      "http://localhost:4444"
+    ],
+    "reasoning": "Sends the export ZIP to the local render server (render-playwright, http://localhost:4444) so the plugin can trigger MP4 renders directly instead of requiring a manual CLI step."
   }
 }
