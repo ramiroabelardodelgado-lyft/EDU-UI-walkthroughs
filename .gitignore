@@ -3,3 +3,10 @@
 *.log.*
 #node_modules
 
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Claude Code session files
+.claude/
+
