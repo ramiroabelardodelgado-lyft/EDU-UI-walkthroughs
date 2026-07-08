@@ -57,6 +57,20 @@ window.addEventListener('load', () => {
   document.getElementById("btn-render-compressed")!.addEventListener("click", () => startRender(true));
   document.getElementById("btn-save-mp4")!.addEventListener("click", saveMp4);
 
+  // Accordion — clicking a collapsed group expands it AND collapses the other.
+  // Clicking the already-expanded group is a no-op (one group is always open).
+  document.querySelectorAll<HTMLButtonElement>(".group-header").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const target = btn.closest(".group") as HTMLElement | null;
+      if (!target || !target.classList.contains("collapsed")) return;
+      document.querySelectorAll<HTMLElement>(".group").forEach(g => {
+        if (g === target) g.classList.remove("collapsed");
+        else g.classList.add("collapsed");
+      });
+      reportHeight();
+    });
+  });
+
   // Poll /health immediately and every 5s
   pingHealth();
   setInterval(pingHealth, 5000);

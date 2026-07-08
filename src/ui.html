@@ -256,24 +256,55 @@ body {
   color: var(--c-text-inv);
 }
 
-/* ── Render section ── */
-#render-section .section-label { display: flex; align-items: center; gap: 6px; }
-#server-status-dot {
+/* ── Collapsible groups (accordion) ── */
+.group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 12px;
+  border: none;
+  border-top: 1px solid var(--c-border);
+  border-bottom: 1px solid var(--c-border);
+  background: var(--c-bg);
+  font-family: inherit;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--c-text);
+  cursor: pointer;
+  text-align: left;
+}
+.group-header:hover { background: var(--c-sec); }
+.group-header:active { background: var(--c-sec-h); }
+.group-header .chevron {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--c-muted);
+  transition: transform 180ms ease;
+  line-height: 1;
+}
+.group.collapsed .chevron { transform: rotate(-90deg); }
+.group.collapsed .group-body { display: none; }
+.group-header .group-title { flex-shrink: 0; }
+
+/* ── Render group header inline status ── */
+.group-header #server-status-dot {
   width: 7px; height: 7px; border-radius: 50%;
   background: var(--c-muted); flex-shrink: 0;
   transition: background 200ms;
 }
-#server-status-dot.online { background: var(--c-ok); }
-#server-status-text {
-  margin-left: auto;
+.group-header #server-status-dot.online { background: var(--c-ok); }
+.group-header #server-status-text {
   font-size: 8.5px;
   font-weight: 500;
   letter-spacing: 0.02em;
   color: var(--c-muted);
   text-transform: none;
 }
-#server-status-text.online { color: var(--c-ok); }
+.group-header #server-status-text.online { color: var(--c-ok); }
 
+/* ── Render section body ── */
 #render-hint {
   font-size: 9.5px;
   color: var(--c-muted);
@@ -395,6 +426,14 @@ body {
   <span id="version"></span>
 </div>
 
+<!-- ── Content group (Frames + Add EDU) ── -->
+<div class="group" id="group-content">
+  <button class="group-header" data-group="content" type="button">
+    <span class="group-title">Content</span>
+    <span class="chevron">▾</span>
+  </button>
+  <div class="group-body">
+
 <!-- ── Frame sizes section ── -->
 <div class="section" id="frames-section">
   <div class="section-label">Frames</div>
@@ -447,23 +486,31 @@ body {
   <div id="status-line"></div>
 </div>
 
-<!-- ── Render section (local server) ── -->
-<div class="section" id="render-section">
-  <div class="section-label">
+  </div> <!-- /.group-body (Content) -->
+</div> <!-- /#group-content -->
+
+<!-- ── Render group (local server) ── -->
+<div class="group collapsed" id="group-render">
+  <button class="group-header" data-group="render" type="button">
     <span id="server-status-dot"></span>
-    <span>Render</span>
+    <span class="group-title">Render</span>
     <span id="server-status-text">not connected</span>
-  </div>
-  <div id="render-hint">Renderer not running — start with <code>npm run server</code></div>
-  <div id="render-buttons">
-    <button class="render-btn" id="btn-render-full" disabled>Render MP4</button>
-    <button class="render-btn" id="btn-render-compressed" disabled>Render 480p</button>
-  </div>
-  <div id="render-status"></div>
-  <div id="preview-area" hidden>
-    <video id="preview-video" controls playsinline></video>
-    <div id="preview-meta"></div>
-    <button id="btn-save-mp4">Save MP4</button>
+    <span class="chevron">▾</span>
+  </button>
+  <div class="group-body">
+    <div class="section" id="render-section">
+      <div id="render-hint">Renderer not running — start with <code>npm run server</code></div>
+      <div id="render-buttons">
+        <button class="render-btn" id="btn-render-full" disabled>Render MP4</button>
+        <button class="render-btn" id="btn-render-compressed" disabled>Render 480p</button>
+      </div>
+      <div id="render-status"></div>
+      <div id="preview-area" hidden>
+        <video id="preview-video" controls playsinline></video>
+        <div id="preview-meta"></div>
+        <button id="btn-save-mp4">Save MP4</button>
+      </div>
+    </div>
   </div>
 </div>
 
