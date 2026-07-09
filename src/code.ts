@@ -369,17 +369,25 @@ function scaleAllFrames() {
 
 // ── Live frame list refresh ────────────────────────────────────────────────────
 
-// Returns true when the current selection root is a frame/section/component
-// (i.e. a valid target for frame-size detection, not a child element).
-function isValidFrameSelection(): boolean {
+// Returns true when the selection is a screen-level container we can meaningfully
+// size-check: a SECTION, or a FRAME/COMPONENT whose parent is PAGE or SECTION.
+// Any deeper selection (nested FRAMEs used as containers, INSTANCEs, TEXT, etc.)
+// is treated as "editing children" — we leave the frame list alone so it doesn't
+// flag an inner container as a non-393 screen.
+function isScreenLevelSelection(): boolean {
   const sel = figma.currentPage.selection;
   if (!sel.length) return false;
-  const t = sel[0].type;
-  return t === "FRAME" || t === "SECTION" || t === "COMPONENT";
+  const node = sel[0];
+  if (node.type === "SECTION") return true;
+  if (node.type === "FRAME" || node.type === "COMPONENT") {
+    const p = node.parent;
+    return !!p && (p.type === "PAGE" || p.type === "SECTION");
+  }
+  return false;
 }
 
 function refreshFrameList() {
-  if (!isValidFrameSelection()) return; // keep current list while working on child elements
+  if (!isScreenLevelSelection()) return; // keep current list while editing inside a screen
   try {
     const type = checkSelection();
     const frames = getSelectionFrames(type);
