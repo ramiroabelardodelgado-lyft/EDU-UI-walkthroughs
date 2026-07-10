@@ -158,7 +158,10 @@ window.addEventListener("message", (event) => {
       setRenderStatus(`Rendering ${compress ? "480p" : "MP4"}… this can take 30–60s`, false);
       try {
         const mp4 = await postZipToServer(content, compress);
-        const mp4Name = `${zipName}${compress ? "_480" : ""}.mp4`;
+        // Filename intentionally does NOT distinguish full-res vs 480p — the
+        // locale suffix from zipName (e.g. SectionName_EN / _FR / _ES) is the
+        // organizing key. Users render one variant per locale at a time.
+        const mp4Name = `${zipName}.mp4`;
         showPreview(mp4, mp4Name);
         setRenderStatus(`✔ ${mp4Name} · ${(mp4.size / 1_048_576).toFixed(1)} MB`, false);
       } catch (err) {
