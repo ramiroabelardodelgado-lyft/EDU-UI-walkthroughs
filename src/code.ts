@@ -292,9 +292,46 @@ function addEduComponents(type: string, padding: number) {
         x + w / 2 - 25, y + h / 2 - 25, 50, 50, 25));
       break;
 
-    case "swipe":
-      created.push(createEduFrame(screenFrame, "EDU-swipe", x, y, w, h));
+    case "swipe": {
+      // Vertical rod (60×250) centered on the selected element. Designer rotates
+      // to change direction: 0° = swipe UP, 90° = LEFT, 180° = DOWN, -90° = RIGHT.
+      // Children (start dot + arrow) are inside the rod → invisible to renderer
+      // JSON (only top-level EDU-* frames are captured) and to PNG export (parent
+      // opacity toggle hides the whole rod during capture).
+      const rodW = 60;
+      const rodH = 250;
+      const cx = x + w / 2;
+      const cy = y + h / 2;
+      const rod = createEduFrame(screenFrame, "EDU-swipe",
+        Math.round(cx - rodW / 2), Math.round(cy - rodH / 2), rodW, rodH, rodW / 2);
+      rod.clipsContent = false;
+
+      // Hollow start circle at BOTTOM (rod bottom = swipe start; default = swipe up)
+      const dotSize = 30;
+      const dot = figma.createEllipse();
+      dot.name = "swipe-start";
+      dot.resize(dotSize, dotSize);
+      dot.x = (rodW - dotSize) / 2;
+      dot.y = rodH - dotSize - 6;
+      dot.fills = [];
+      dot.strokes = [{ type: "SOLID", color: { r: 0.13, g: 0.78, b: 0.94 }, opacity: 1 }];
+      dot.strokeWeight = 4;
+      rod.appendChild(dot);
+
+      // Solid triangle at TOP pointing up (default rotation of pointCount=3 polygon)
+      const triSize = 36;
+      const tri = figma.createPolygon();
+      tri.name = "swipe-arrow";
+      tri.pointCount = 3;
+      tri.resize(triSize, triSize);
+      tri.x = (rodW - triSize) / 2;
+      tri.y = 8;
+      tri.fills = [{ type: "SOLID", color: { r: 0.13, g: 0.78, b: 0.94 }, opacity: 1 }];
+      rod.appendChild(tri);
+
+      created.push(rod);
       break;
+    }
 
     case "scroll": {
       // Fixed 393×852 viewport outline anchored to screen frame origin
