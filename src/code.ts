@@ -206,6 +206,7 @@ function eduFill(name: string): SolidPaint {
   if (name.indexOf("Step")             > -1) return { type: "SOLID", color: { r: 1.00, g: 0.60, b: 0.00 }, opacity: 0.85 };
   if (name.indexOf("click")            > -1) return { type: "SOLID", color: { r: 1.00, g: 0.24, b: 0.50 }, opacity: 0.3 };
   if (name.indexOf("swipe")            > -1) return { type: "SOLID", color: { r: 0.13, g: 0.78, b: 0.94 }, opacity: 0.3 };
+  if (name.indexOf("type")             > -1) return { type: "SOLID", color: { r: 1.00, g: 0.85, b: 0.20 }, opacity: 0.4 };
   if (name.indexOf("scroll")           > -1) return { type: "SOLID", color: { r: 0.24, g: 0.85, b: 0.45 }, opacity: 0.2 };
   if (name.indexOf("drag")             > -1) return { type: "SOLID", color: { r: 1.00, g: 0.60, b: 0.00 }, opacity: 0.3 };
   return { type: "SOLID", color: { r: 0.5, g: 0.5, b: 0.5 }, opacity: 0.2 };
@@ -347,6 +348,12 @@ function addEduComponents(type: string, padding: number) {
 
     case "drag":
       created.push(createEduFrame(screenFrame, "EDU-drag", x, y, w, h));
+      break;
+
+    case "type":
+      // Typewriter reveal — bounding box over the underlying text. Renderer
+      // wipes a white mask left→right in char-width steps derived from h.
+      created.push(createEduFrame(screenFrame, "EDU-type", x, y, w, h));
       break;
   }
 
