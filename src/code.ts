@@ -207,6 +207,8 @@ function eduFill(name: string): SolidPaint {
   if (name.indexOf("click")            > -1) return { type: "SOLID", color: { r: 1.00, g: 0.24, b: 0.50 }, opacity: 0.3 };
   if (name.indexOf("swipe")            > -1) return { type: "SOLID", color: { r: 0.13, g: 0.78, b: 0.94 }, opacity: 0.3 };
   if (name.indexOf("type")             > -1) return { type: "SOLID", color: { r: 1.00, g: 0.85, b: 0.20 }, opacity: 0.4 };
+  if (name.indexOf("scrim")            > -1) return { type: "SOLID", color: { r: 0.00, g: 0.00, b: 0.00 }, opacity: 0.3 };
+  if (name.indexOf("panel")            > -1) return { type: "SOLID", color: { r: 0.53, g: 0.12, b: 0.93 }, opacity: 0.2 };
   if (name.indexOf("scroll")           > -1) return { type: "SOLID", color: { r: 0.24, g: 0.85, b: 0.45 }, opacity: 0.2 };
   if (name.indexOf("drag")             > -1) return { type: "SOLID", color: { r: 1.00, g: 0.60, b: 0.00 }, opacity: 0.3 };
   return { type: "SOLID", color: { r: 0.5, g: 0.5, b: 0.5 }, opacity: 0.2 };
@@ -239,6 +241,32 @@ function addEduComponents(type: string, padding: number) {
   const screenFrame = getScreenFrame(node);
   if (!screenFrame) {
     figma.ui.postMessage({ function: "status", text: "Select an element inside a screen frame.", error: true });
+    return;
+  }
+
+  // ── Panels: convert the selected frame/group in place ──────────────────────
+  // A panel is real design content (a menu/sheet) that the renderer exports as
+  // its own PNG and animates in. We just RENAME the selected node — it keeps its
+  // position and content and is exported separately at export time.
+  if (type === "panel-slide-in" || type === "panel-fade-in") {
+    node.name = type === "panel-fade-in" ? "EDU-panel-fade-in" : "EDU-panel-slide-in";
+    figma.currentPage.selection = [node];
+    figma.viewport.scrollAndZoomIntoView([node]);
+    figma.ui.postMessage({
+      function: "status",
+      text: `Marked "${node.name}" — ${type === "panel-fade-in" ? "fade" : "slide"} in`,
+      error: false
+    });
+    return;
+  }
+
+  // ── Scrim: a full-screen dim (renderer draws it; geometry is just a marker) ──
+  if (type === "scrim") {
+    const scrim = createEduFrame(screenFrame, "EDU-scrim", 0, 0,
+      Math.round(screenFrame.width), Math.round(screenFrame.height));
+    figma.currentPage.selection = [scrim];
+    figma.viewport.scrollAndZoomIntoView([scrim]);
+    figma.ui.postMessage({ function: "status", text: `Added EDU-scrim to ${screenFrame.name}`, error: false });
     return;
   }
 
@@ -505,8 +533,11 @@ async function getFrames(type: string) {
     f.bottomRightRadius = 0;
     f.bottomLeftRadius = 0;
 
+    // Vector overlays (direct EDU children). Panels are handled separately
+    // below (they are real content, possibly nested, exported as their own PNG).
     // @ts-ignore
     frame.children.forEach(child => {
+      if (child.name.indexOf("EDU-panel") > -1) return; // panel — handled below
       const UI = check_child(child);
       if (UI) {
         uiData.push(child);
@@ -518,9 +549,40 @@ async function getFrames(type: string) {
       }
     });
 
+    // Panels (recursive — may be nested). Hidden for the base plate, then each
+    // exported as its own transparent PNG at the screen's scale and serialized
+    // with an `asset` reference the renderer loads as a second image layer.
+    const panels = f.findAll(n => n.name.indexOf("EDU-panel") > -1) as any[];
+    const panelOpacity: number[] = panels.map(p => p.opacity);
+    panels.forEach(p => { p.opacity = 0; });
+
     await sendImage(frame).then(() => {
       uiData.forEach(el => opacity_Toggle(el, true));
     });
+
+    const panelScale = 1290 / frame.width;
+    for (let pi = 0; pi < panels.length; pi++) {
+      const p = panels[pi];
+      p.opacity = 1;
+      const assetName = `${frame.name}_panel${pi}.png`;
+      const png = await p.exportAsync({ format: "PNG", constraint: { type: "SCALE", value: panelScale } });
+      figma.ui.postMessage({ function: "addImage", imageData: png, name: assetName });
+      p.opacity = 0;
+      const ppos = getPositionInFrame(p, f);
+      jsonUI.push({
+        name: p.name,
+        x: ppos.x,
+        y: ppos.y,
+        width: p.width,
+        height: p.height,
+        opacity: panelOpacity[pi],
+        parent: frame.name,
+        rotation: p.rotation,
+        cornerRadius: typeof p.cornerRadius === "number" ? p.cornerRadius : 0,
+        asset: assetName
+      });
+    }
+    panels.forEach((p, pi) => { p.opacity = panelOpacity[pi]; });
 
     reOrder_layers(toTop);
     i++;
