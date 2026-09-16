@@ -207,7 +207,7 @@ function eduFill(name: string): SolidPaint {
   if (name.indexOf("click")            > -1) return { type: "SOLID", color: { r: 1.00, g: 0.24, b: 0.50 }, opacity: 0.3 };
   if (name.indexOf("swipe")            > -1) return { type: "SOLID", color: { r: 0.13, g: 0.78, b: 0.94 }, opacity: 0.3 };
   if (name.indexOf("type")             > -1) return { type: "SOLID", color: { r: 1.00, g: 0.85, b: 0.20 }, opacity: 0.4 };
-  if (name.indexOf("scrim")            > -1) return { type: "SOLID", color: { r: 0.00, g: 0.00, b: 0.00 }, opacity: 0.3 };
+  if (name.indexOf("scrim")            > -1) return { type: "SOLID", color: { r: 0.1137, g: 0.0471, b: 0.0902 }, opacity: 0.3 };  // #1D0C17 @ 30%
   if (name.indexOf("panel")            > -1) return { type: "SOLID", color: { r: 0.53, g: 0.12, b: 0.93 }, opacity: 0.2 };
   if (name.indexOf("scroll")           > -1) return { type: "SOLID", color: { r: 0.24, g: 0.85, b: 0.45 }, opacity: 0.2 };
   if (name.indexOf("drag")             > -1) return { type: "SOLID", color: { r: 1.00, g: 0.60, b: 0.00 }, opacity: 0.3 };
