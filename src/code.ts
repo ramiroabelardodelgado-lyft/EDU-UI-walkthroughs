@@ -248,13 +248,19 @@ function addEduComponents(type: string, padding: number) {
   // A panel is real design content (a menu/sheet) that the renderer exports as
   // its own PNG and animates in. We just RENAME the selected node — it keeps its
   // position and content and is exported separately at export time.
-  if (type === "panel-slide-in" || type === "panel-fade-in") {
-    node.name = type === "panel-fade-in" ? "EDU-panel-fade-in" : "EDU-panel-slide-in";
+  const PANEL_TYPES: Record<string, { name: string; label: string }> = {
+    "panel-slide-in":   { name: "EDU-panel-slide-in",   label: "slide in from bottom" },
+    "panel-slide-left": { name: "EDU-panel-slide-left", label: "slide in from left" },
+    "panel-fade-in":    { name: "EDU-panel-fade-in",    label: "fade in" },
+  };
+  const panelType = PANEL_TYPES[type];
+  if (panelType) {
+    node.name = panelType.name;
     figma.currentPage.selection = [node];
     figma.viewport.scrollAndZoomIntoView([node]);
     figma.ui.postMessage({
       function: "status",
-      text: `Marked "${node.name}" — ${type === "panel-fade-in" ? "fade" : "slide"} in`,
+      text: `Marked "${node.name}" — ${panelType.label}`,
       error: false
     });
     return;
