@@ -250,7 +250,7 @@ function addEduComponents(type: string, padding: number) {
   // position and content and is exported separately at export time.
   const PANEL_TYPES: Record<string, { name: string; label: string }> = {
     "panel-slide-in":   { name: "EDU-panel-slide-in",   label: "slide in from bottom" },
-    "panel-slide-left": { name: "EDU-panel-slide-left", label: "slide in from left" },
+    "panel-slide-right": { name: "EDU-panel-slide-right", label: "slide in from right" },
     "panel-fade-in":    { name: "EDU-panel-fade-in",    label: "fade in" },
   };
   const panelType = PANEL_TYPES[type];
